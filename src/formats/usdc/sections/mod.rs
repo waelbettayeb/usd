@@ -66,7 +66,9 @@ pub fn parse_table(input: &[u8]) -> IResult<&[u8], TableOfContent> {
 pub fn parse_fields(input: &[u8]) -> IResult<&[u8], ()> {
     Ok((input, ()))
 }
-pub fn parse_strings(input: &[u8]) -> IResult<&str, ()> {
-    let result = std::str::from_utf8(input).unwrap();
-    Ok((result, ()))
+#[derive(Nom, Debug)]
+struct StringSection(Vec<u32>);
+pub fn parse_strings(input: &[u8]) -> IResult<&[u8], Vec<u32>> {
+    let (input, index) = StringSection::parse_le(input).unwrap();
+    Ok((input, index.0))
 }

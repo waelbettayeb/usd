@@ -39,7 +39,8 @@ mod usdc {
                 contents.slice((section.start) as usize..(section.start + section.size) as usize);
             match section.name {
                 STRINGS_SECTION_NAME => {
-                    parse_strings(input).unwrap();
+                    let (_, string_indices) = parse_strings(input).unwrap();
+                    println!("string_indices: {:?}", string_indices);
                 }
                 TOKENS_SECTION_NAME => {
                     let (_, token_section) = parse_tokens_section(input).unwrap();
