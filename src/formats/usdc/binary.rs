@@ -16,10 +16,10 @@
 mod usdc {
 
     use super::super::bootstrap::parse_bootstrap;
-    use super::super::section::{
-        parse_fields, parse_strings, parse_table, parse_tokens_section, FIELDSETS_SECTION_NAME,
-        FIELDS_SECTION_NAME, PATHS_SECTION_NAME, SPECS_SECTION_NAME, STRINGS_SECTION_NAME,
-        TOKENS_SECTION_NAME,
+    use super::super::sections::token::parse_tokens_section;
+    use super::super::sections::{
+        parse_fields, parse_strings, parse_table, FIELDSETS_SECTION_NAME, FIELDS_SECTION_NAME,
+        PATHS_SECTION_NAME, SPECS_SECTION_NAME, STRINGS_SECTION_NAME, TOKENS_SECTION_NAME,
     };
 
     use nom::Slice;
