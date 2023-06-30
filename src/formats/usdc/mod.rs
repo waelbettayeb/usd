@@ -1,5 +1,6 @@
 mod binary;
 mod bootstrap;
+mod compress;
 mod field;
 mod index;
 mod sections;

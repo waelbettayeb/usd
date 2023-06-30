@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+lz4-sys = "1.9.4"
 lz4_flex = "0.10.0"
 nom = "7"
 nom-derive = "0.10.1"
