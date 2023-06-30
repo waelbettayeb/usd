@@ -5,5 +5,6 @@ mod field;
 mod index;
 mod sections;
 mod spec;
+mod token;
 mod value;
 mod value_type;

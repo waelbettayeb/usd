@@ -1,5 +1,3 @@
-pub mod token;
-
 use nom::{character::complete::anychar, multi::count, IResult};
 use nom_derive::{Nom, Parse};
 
