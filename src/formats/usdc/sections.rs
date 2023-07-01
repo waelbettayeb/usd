@@ -61,9 +61,6 @@ pub fn parse_table(input: &[u8]) -> IResult<&[u8], TableOfContent> {
     TableOfContent::parse_le(input)
 }
 
-pub fn parse_fields(input: &[u8]) -> IResult<&[u8], ()> {
-    Ok((input, ()))
-}
 #[derive(Nom, Debug)]
 struct StringSection(Vec<u32>);
 pub fn parse_strings(input: &[u8]) -> IResult<&[u8], Vec<u32>> {

@@ -15,9 +15,11 @@
 #[cfg(test)]
 mod usdc {
 
+    use crate::formats::usdc::field::parse_fields_section;
+
     use super::super::bootstrap::parse_bootstrap;
     use super::super::sections::{
-        parse_fields, parse_strings, parse_table, FIELDSETS_SECTION_NAME, FIELDS_SECTION_NAME,
+        parse_strings, parse_table, FIELDSETS_SECTION_NAME, FIELDS_SECTION_NAME,
         PATHS_SECTION_NAME, SPECS_SECTION_NAME, STRINGS_SECTION_NAME, TOKENS_SECTION_NAME,
     };
     use super::super::token::parse_tokens_section;
@@ -43,13 +45,14 @@ mod usdc {
                     println!("string_indices: {:?}", string_indices);
                 }
                 TOKENS_SECTION_NAME => {
-                    parse_tokens_section(input).unwrap();
+                    let (_, tokens) = parse_tokens_section(input).unwrap();
+                    println!("TOKENS: {:?}", tokens);
                 }
                 FIELDSETS_SECTION_NAME => {
                     println!("FIELDSETS: {:?}", section);
                 }
                 FIELDS_SECTION_NAME => {
-                    parse_fields(input).unwrap();
+                    parse_fields_section(input).unwrap();
                 }
                 PATHS_SECTION_NAME => {
                     println!("PATHS: {:?}", section);

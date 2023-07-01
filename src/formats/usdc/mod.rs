@@ -3,6 +3,7 @@ mod bootstrap;
 mod compress;
 mod field;
 mod index;
+mod integers;
 mod sections;
 mod spec;
 mod token;

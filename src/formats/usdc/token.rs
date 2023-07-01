@@ -7,7 +7,7 @@ pub struct TokensSection {
     num_tokens: u64,
     uncompressed_size: u64,
     compressed_size: u64,
-    #[nom(Parse = "decompress_from_buffer(uncompressed_size, compressed_size - 1)")]
+    #[nom(Parse = "decompress_from_buffer(uncompressed_size, compressed_size)")]
     tokens: Vec<u8>,
 }
 

@@ -61,7 +61,11 @@ pub fn decompress_from_buffer(
         let (input, number_of_chunks) = le_u8(input)?;
 
         if number_of_chunks == 0 {
-            return decompress_chunk(input, compressed_size as usize, uncompressed_size as usize);
+            return decompress_chunk(
+                input,
+                compressed_size as usize - 1,
+                uncompressed_size as usize,
+            );
         }
         let mut size_left: usize = uncompressed_size as usize;
         let mut input = input;

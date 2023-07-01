@@ -32,9 +32,9 @@ up to a whole number of bytes.
  */
 
 
-use std::cmp::{min, max};
-use nom::{IResult, number::complete::{le_i32, le_i8, le_i16, le_u32}};
-use crate::formats::compress::{decompress_from_buffer, get_compressed_buffer_size};
+use std::cmp::{min};
+use nom::{IResult, number::complete::{le_i32, le_i8, le_i16, le_u32}, Slice};
+use super::compress::{decompress_from_buffer, get_compressed_buffer_size};
 
 fn get_encoded_buffer_size<T>(number_of_integers: usize) -> usize {
     if number_of_integers == 0 {
@@ -63,31 +63,34 @@ pub fn decode_integers(number_of_integers: usize) -> impl Fn(&[u8]) -> IResult<&
         let mut values = vec![common_value; number_of_integers];
         
         let mut next = input;
-        let mut current_value:T = 0;
+        let mut current_value:i64 = 0;
         for i in 0..number_of_integers {
-            let (_, code) = parse_code((codes, i * 2), 2).unwrap();
+            let index = (i * 2) / 8;
+            let offset = (i * 2) % 8;
+            let codes = codes.slice(index..);
+            let (_, code) = parse_code((codes, offset), 2).unwrap();
 
             match code {
                 0b01 => {
                     let (remainder, value) = le_i8(next)?;
                     next = remainder;
-                    current_value += value as T;
+                    current_value += value as i64;
                 }
                 0b10 => {
                     let (remainder, value) = le_i16(next)?;
                     next = remainder;
-                    current_value += value as T;
+                    current_value += value as i64;
                 }
                 0b11 => {
                     let (remainder, value) = le_i32(next)?;
                     next = remainder;
-                    current_value += value as T;
+                    current_value += value as i64;
                 }
                 _ => {
-                   current_value += common_value;
+                   current_value += common_value as i64;
                 }
             }
-            values[i] = current_value;
+            values[i] = current_value.try_into().unwrap();
         }
         Ok((input, values))
     }
@@ -101,8 +104,8 @@ pub fn decompress_integers(number_of_integers: usize, compressed_size:u64) -> im
         
         let compressed_size = min(compressed_size, buffer_size as u64);
         
-        let (rest, decompressed_data) = decompress_from_buffer(uncompressed_size as u64, compressed_size)(input).unwrap();
-        let (_, integers) = decode_integers(number_of_integers)(&decompressed_data).unwrap();
+        let (rest, uncompressed_data) = decompress_from_buffer(uncompressed_size as u64, compressed_size)(input).unwrap();
+        let (_, integers) = decode_integers(number_of_integers)(&uncompressed_data).unwrap();
         Ok((rest, integers))
     }
 }
