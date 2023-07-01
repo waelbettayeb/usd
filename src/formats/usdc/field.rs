@@ -25,3 +25,14 @@ pub struct FieldSection {
 pub fn parse_fields_section(input: &[u8]) -> IResult<&[u8], FieldSection> {
     FieldSection::parse(input)
 }
+
+#[derive(NomLE, Debug)]
+pub struct FieldSetsSection {
+    num_fields: u64,
+    compressed_size: u64,
+    #[nom(Parse = "decompress_integers(num_fields as usize, compressed_size)")]
+    sets: Vec<u32>,
+}
+pub fn parse_field_sets_section(input: &[u8]) -> IResult<&[u8], FieldSetsSection> {
+    FieldSetsSection::parse(input)
+}
