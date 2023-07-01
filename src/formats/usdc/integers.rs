@@ -32,8 +32,8 @@ up to a whole number of bytes.
  */
 
 
-use std::cmp::{min};
-use nom::{IResult, number::complete::{le_i32, le_i8, le_i16, le_u32}, Slice};
+use std::{cmp::{min}, ops::RangeFrom};
+use nom::{IResult, number::complete::{le_i32, le_i8, le_i16, le_u32, le_u64}, Slice, error::ParseError, InputIter, InputLength};
 use super::compress::{decompress_from_buffer, get_compressed_buffer_size};
 
 fn get_encoded_buffer_size<T>(number_of_integers: usize) -> usize {
@@ -53,17 +53,44 @@ fn parse_code(input: (&[u8], usize), count: usize)-> IResult<(&[u8], usize), u8>
     nom::bits::complete::take(count)(input)
 }
 
-pub fn decode_integers(number_of_integers: usize) -> impl Fn(&[u8]) -> IResult<&[u8], Vec<u32>> {
-    type T = u32;
+pub trait CommonValue: Sized + std::convert::Into<i128> + std::convert::TryFrom<i128> + Clone + Default + Copy  {
+    fn get_common_value_from<I, E>(input:I) -> IResult<I, Self, E> 
+    where
+    E: ParseError<I>,
+    I: Slice<RangeFrom<usize>> + InputIter<Item = u8> + InputLength;
+}
+
+impl CommonValue for u32 {
+    fn get_common_value_from<I, E>(input:I) -> IResult<I, Self, E> 
+    where
+    E: ParseError<I>,
+    I: Slice<RangeFrom<usize>> + InputIter<Item = u8> + InputLength {
+        le_u32(input)
+    }
+} 
+
+impl CommonValue for u64 {
+    fn get_common_value_from<I, E>(input:I) -> IResult<I, Self, E> 
+    where
+    E: ParseError<I>,
+    I: Slice<RangeFrom<usize>> + InputIter<Item = u8> + InputLength {
+        le_u64(input)
+    }
+}
+
+
+pub fn decode_integers<T>(number_of_integers: usize) -> impl Fn(&[u8]) -> IResult<&[u8], Vec<T>>
+where T: CommonValue
+ {
     move |input: &[u8]| {
-        let (input, common_value) = le_u32(input)?;
+        let (input, common_value) = T::get_common_value_from(input)?;
         let codes_size = (number_of_integers * 2 + 7) / 8;
         let (codes, input) = input.split_at(codes_size);
 
-        let mut values = vec![common_value; number_of_integers];
+        let mut values:Vec<T> = vec![common_value; number_of_integers];
         
         let mut next = input;
-        let mut current_value:i64 = 0;
+        let mut current_value: i128 = 0;
         for i in 0..number_of_integers {
             let index = (i * 2) / 8;
             let offset = (i * 2) % 8;
@@ -74,38 +101,38 @@ pub fn decode_integers(number_of_integers: usize) -> impl Fn(&[u8]) -> IResult<&
                 0b01 => {
                     let (remainder, value) = le_i8(next)?;
                     next = remainder;
-                    current_value += value as i64;
+                    current_value += value as i128;
                 }
                 0b10 => {
                     let (remainder, value) = le_i16(next)?;
                     next = remainder;
-                    current_value += value as i64;
+                    current_value += value as i128;
                 }
                 0b11 => {
                     let (remainder, value) = le_i32(next)?;
                     next = remainder;
-                    current_value += value as i64;
+                    current_value += value as i128;
                 }
                 _ => {
-                   current_value += common_value as i64;
+                   current_value += common_value.into();
                 }
             }
-            values[i] = current_value.try_into().unwrap();
+            values[i] = current_value.try_into().unwrap_or_default();
         }
         Ok((input, values))
     }
 }
 
-pub fn decompress_integers(number_of_integers: usize, compressed_size:u64) -> impl Fn(&[u8]) -> IResult<&[u8], Vec<u32>> {
+pub fn decompress_integers<T>(number_of_integers: usize, compressed_size:u64) -> impl Fn(&[u8]) -> IResult<&[u8], Vec<T>> where T: CommonValue{
     move |input: &[u8]|{
-        let uncompressed_size = get_encoded_buffer_size::<u32>(number_of_integers);
+        let uncompressed_size = get_encoded_buffer_size::<T>(number_of_integers);
 
         let buffer_size = get_compressed_buffer_size(uncompressed_size);
         
         let compressed_size = min(compressed_size, buffer_size as u64);
         
         let (rest, uncompressed_data) = decompress_from_buffer(uncompressed_size as u64, compressed_size)(input).unwrap();
-        let (_, integers) = decode_integers(number_of_integers)(&uncompressed_data).unwrap();
+        let (_, integers) = decode_integers::<T>(number_of_integers)(&uncompressed_data).unwrap();
         Ok((rest, integers))
     }
 }

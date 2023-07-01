@@ -17,6 +17,9 @@ pub struct FieldSection {
     compressed_size: u64,
     #[nom(Parse = "decompress_integers(num_fields as usize, compressed_size)")]
     indices: Vec<u32>,
+    representations_size: u64,
+    #[nom(Parse = "decompress_integers(num_fields as usize, representations_size)")]
+    representations: Vec<u64>,
 }
 
 pub fn parse_fields_section(input: &[u8]) -> IResult<&[u8], FieldSection> {
