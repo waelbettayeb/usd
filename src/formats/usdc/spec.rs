@@ -1,4 +1,8 @@
+use nom::IResult;
+use nom_derive::{NomLE, Parse};
+
 use super::index::{FieldSetIndex, PathIndex};
+use super::integers::decompress_integers;
 
 #[derive(Debug, Eq, Hash, PartialEq)]
 enum SpecType {
@@ -26,4 +30,17 @@ pub(super) struct Spec {
     path_index: PathIndex,
     field_set_index: FieldSetIndex,
     spec_type: SpecType,
+}
+
+#[derive(NomLE, Debug)]
+pub struct SpecsSection {
+    num_fields: u64,
+    compressed_size: u64,
+    #[nom(Parse = "decompress_integers(num_fields as usize, compressed_size)")]
+    specs: Vec<u32>,
+    #[nom(Count = "num_fields")]
+    indices: Vec<u32>,
+}
+pub fn parse_specs_section(input: &[u8]) -> IResult<&[u8], SpecsSection> {
+    SpecsSection::parse(input)
 }

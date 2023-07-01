@@ -16,6 +16,7 @@
 mod usdc {
 
     use crate::formats::usdc::field::{parse_field_sets_section, parse_fields_section};
+    use crate::formats::usdc::spec::parse_specs_section;
 
     use super::super::bootstrap::parse_bootstrap;
     use super::super::sections::{
@@ -48,7 +49,7 @@ mod usdc {
                     parse_tokens_section(input).unwrap();
                 }
                 FIELDSETS_SECTION_NAME => {
-                    parse_field_sets_section(input).unwrap();
+                    let (_, section) = parse_field_sets_section(input).unwrap();
                 }
                 FIELDS_SECTION_NAME => {
                     parse_fields_section(input).unwrap();
@@ -57,6 +58,7 @@ mod usdc {
                     println!("PATHS: {:?}", section);
                 }
                 SPECS_SECTION_NAME => {
+                    let (_, section) = parse_specs_section(input).unwrap();
                     println!("SPECS: {:?}", section);
                 }
                 _ => {
