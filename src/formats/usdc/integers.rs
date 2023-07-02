@@ -69,6 +69,15 @@ impl CommonValue for u32 {
     }
 } 
 
+impl CommonValue for i32 {
+    fn get_common_value_from<I, E>(input:I) -> IResult<I, Self, E> 
+    where
+    E: ParseError<I>,
+    I: Slice<RangeFrom<usize>> + InputIter<Item = u8> + InputLength {
+        le_i32(input)
+    }
+}
+
 impl CommonValue for u64 {
     fn get_common_value_from<I, E>(input:I) -> IResult<I, Self, E> 
     where

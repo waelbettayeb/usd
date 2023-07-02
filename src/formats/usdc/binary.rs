@@ -16,14 +16,15 @@
 mod usdc {
 
     use crate::formats::usdc::field::{parse_field_sets_section, parse_fields_section};
+    use crate::formats::usdc::paths::parse_paths;
     use crate::formats::usdc::spec::parse_specs_section;
 
-    use super::super::bootstrap::parse_bootstrap;
-    use super::super::sections::{
+    use crate::formats::usdc::bootstrap::parse_bootstrap;
+    use crate::formats::usdc::sections::{
         parse_strings, parse_table, FIELDSETS_SECTION_NAME, FIELDS_SECTION_NAME,
         PATHS_SECTION_NAME, SPECS_SECTION_NAME, STRINGS_SECTION_NAME, TOKENS_SECTION_NAME,
     };
-    use super::super::token::parse_tokens_section;
+    use crate::formats::usdc::token::parse_tokens_section;
 
     use nom::Slice;
 
@@ -42,19 +43,23 @@ mod usdc {
                 contents.slice((section.start) as usize..(section.start + section.size) as usize);
             match section.name {
                 STRINGS_SECTION_NAME => {
-                    let (_, string_indices) = parse_strings(input).unwrap();
-                    println!("string_indices: {:?}", string_indices);
+                    let (_, section) = parse_strings(input).unwrap();
+                    println!("STRINGS: {:?}", section);
                 }
                 TOKENS_SECTION_NAME => {
-                    parse_tokens_section(input).unwrap();
+                    let (_, section) = parse_tokens_section(input).unwrap();
+                    println!("TOKENS: {:?}", section);
                 }
                 FIELDSETS_SECTION_NAME => {
                     let (_, section) = parse_field_sets_section(input).unwrap();
+                    println!("FIELDSETS: {:?}", section);
                 }
                 FIELDS_SECTION_NAME => {
-                    parse_fields_section(input).unwrap();
+                    let (_, section) = parse_fields_section(input).unwrap();
+                    println!("FIELDS: {:?}", section);
                 }
                 PATHS_SECTION_NAME => {
+                    let (_, section) = parse_paths(input).unwrap();
                     println!("PATHS: {:?}", section);
                 }
                 SPECS_SECTION_NAME => {
