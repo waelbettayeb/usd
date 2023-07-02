@@ -4,6 +4,7 @@ mod compress;
 mod field;
 mod index;
 mod integers;
+mod paths;
 mod sections;
 mod spec;
 mod token;

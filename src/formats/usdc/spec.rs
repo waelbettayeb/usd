@@ -34,11 +34,11 @@ pub(super) struct Spec {
 
 #[derive(NomLE, Debug)]
 pub struct SpecsSection {
-    num_fields: u64,
+    num_specs: u64,
     compressed_size: u64,
-    #[nom(Parse = "decompress_integers(num_fields as usize, compressed_size)")]
+    #[nom(Parse = "decompress_integers(num_specs as usize, compressed_size)")]
     specs: Vec<u32>,
-    #[nom(Count = "num_fields")]
+    #[nom(Count = "num_specs")]
     indices: Vec<u32>,
 }
 pub fn parse_specs_section(input: &[u8]) -> IResult<&[u8], SpecsSection> {
