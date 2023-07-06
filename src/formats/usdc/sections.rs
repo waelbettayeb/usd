@@ -57,8 +57,9 @@ fn parse_section_name(input: &[u8]) -> IResult<&[u8], [char; SECTION_NAME_MAX_LE
     Ok((input, name))
 }
 
-pub fn parse_table(input: &[u8]) -> IResult<&[u8], TableOfContent> {
-    TableOfContent::parse_le(input)
+pub fn parse_table(input: &[u8]) -> IResult<&[u8], Vec<Section>> {
+    let (input, table) = TableOfContent::parse_le(input)?;
+    Ok((input, table.sections))
 }
 
 #[derive(Nom, Debug)]

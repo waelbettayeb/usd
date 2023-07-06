@@ -9,16 +9,16 @@ const BINARY_HEADER: &[u8; 8] = b"PXR-USDC";
 pub(super) struct Bootstrap {
     /// The binary header "PXR-USDC"
     #[nom(Parse = "parse_indent")]
-    pub ident: [u8; 8],
+    pub indent: [u8; 8],
     pub version: [u8; 8],
-    pub toc_offset: i64,
-    pub reserved: [i64; 8],
+    pub toc_offset: u64,
+    pub reserved: [u64; 8],
 }
 
 fn parse_indent(input: &[u8]) -> IResult<&[u8], [u8; 8]> {
-    let (input, ident_array) = tag(BINARY_HEADER)(input)?;
-    let ident: [u8; 8] = ident_array.try_into().unwrap();
-    Ok((input, ident))
+    let (input, indent_array) = tag(BINARY_HEADER)(input)?;
+    let indent: [u8; 8] = indent_array.try_into().unwrap();
+    Ok((input, indent))
 }
 
 pub(super) fn parse_bootstrap(input: &[u8]) -> IResult<&[u8], Bootstrap> {

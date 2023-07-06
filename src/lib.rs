@@ -1,14 +1,12 @@
 pub mod formats;
 
 mod layer;
-
+mod path;
 mod schema;
-
+mod token;
 // Properties
-mod property;
-
 mod attribute;
-
+mod property;
 mod relationship;
 
 use wasm_bindgen::prelude::*;
